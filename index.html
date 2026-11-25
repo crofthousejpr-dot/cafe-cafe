@@ -6,7 +6,7 @@
   <title>Review Croft House on Google</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-dark: #0e241b;
@@ -43,8 +43,8 @@
 
     .header {
       text-align: center;
-      margin-bottom: 24px;
-      padding-bottom: 18px;
+      margin-bottom: 18px;
+      padding-bottom: 16px;
       border-bottom: 1px solid var(--border-gold);
     }
 
@@ -60,11 +60,11 @@
       color: #fbbc04;
       font-size: 1.25rem;
       letter-spacing: 3px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .subtitle {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       color: var(--text-muted);
       line-height: 1.5;
     }
@@ -72,6 +72,31 @@
     .subtitle strong {
       color: var(--gold-light);
       font-weight: 600;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+
+    .shuffle-btn {
+      background: rgba(212, 175, 55, 0.14);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .shuffle-btn:hover,
+    .shuffle-btn:active {
+      background: rgba(212, 175, 55, 0.25);
+      border-color: var(--gold);
     }
 
     .review-list {
@@ -87,7 +112,6 @@
       padding: 15px 16px;
       cursor: pointer;
       transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
-      position: relative;
     }
 
     .review-card:hover,
@@ -148,28 +172,77 @@
       background: rgba(212, 175, 55, 0.08);
     }
 
-    /* Toast Notification */
-    .toast {
+    /* Visual Guide Overlay Modal */
+    .overlay {
       position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--gold);
-      color: #0b1c15;
-      padding: 13px 22px;
-      border-radius: 30px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      inset: 0;
+      background: rgba(7, 19, 14, 0.88);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
       opacity: 0;
-      transition: all 0.3s ease;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
       z-index: 999;
-      white-space: nowrap;
     }
 
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
+    .overlay.show {
       opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: #132e23;
+      border: 1.5px solid var(--gold);
+      border-radius: 18px;
+      padding: 24px 20px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .check-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #0b1c15;
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+    }
+
+    .modal-steps {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      line-height: 1.55;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .modal-steps span {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .redirect-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
   </style>
 </head>
@@ -184,6 +257,10 @@
       </p>
     </header>
 
+    <div class="toolbar">
+      <button type="button" class="shuffle-btn" id="shuffleBtn">↻ Refresh Suggestions</button>
+    </div>
+
     <main class="review-list" id="reviewList"></main>
 
     <div class="direct-link-wrap">
@@ -191,59 +268,93 @@
     </div>
   </div>
 
-  <div class="toast" id="toast">✓ Review Copied! Opening Google...</div>
+  <div class="overlay" id="guideOverlay">
+    <div class="modal-box">
+      <div class="check-badge">✓</div>
+      <div class="modal-title">Review Copied!</div>
+      <div class="modal-steps">
+        Google खुलने पर <span>5 Stars ★</span> चुनें और बॉक्स में टैप करके ऊपर कीबोर्ड से <span>Paste</span> दबा दें।
+      </div>
+      <div class="redirect-note">Opening Google Review...</div>
+    </div>
+  </div>
 
   <script>
     const GOOGLE_REVIEW_URL = "https://search.google.com/local/writereview?placeid=ChIJo41cbAC1bTkRnEwq2tPhq14&source=g.page.m._&laa=merchant-review-solicitation";
 
-    const reviews = [
-      {
-        tag: "Overall Experience",
-        text: "Amazing coffee, warm ambiance, and super friendly staff. Croft House is easily one of my favorite spots in Jaipur to relax and unwind. Highly recommended!"
-      },
-      {
-        tag: "Coffee & Drinks",
-        text: "Hands down some of the best coffee I’ve had in town. Rich flavor, great presentation, and the vibe of Croft House makes it even better. Will definitely be coming back soon."
-      },
-      {
-        tag: "Ambiance & Vibe",
-        text: "Loved the aesthetic and cozy vibe of Croft House! It’s the perfect place to catch up with friends or spend some peaceful time over a great cup of coffee."
-      },
-      {
-        tag: "Food & Bakes",
-        text: "Delicious food, fresh bakes, and top-notch coffee! Everything we ordered was full of flavor. Croft House never disappoints with its quality and hospitality."
-      },
-      {
-        tag: "Staff & Hospitality",
-        text: "Exceptional hospitality and super attentive staff! They made us feel right at home from the moment we walked in. Great food, great coffee, and a wonderful experience overall."
-      },
-      {
-        tag: "Hangout Spot",
-        text: "Such a refreshing hangout spot in Jaipur! Great music, comfortable seating, and amazing snacks to go with your coffee. Croft House is a must-visit."
-      },
-      {
-        tag: "Quick & Short",
-        text: "Great coffee, lovely atmosphere, and quick service. Loved everything about Croft House!"
-      },
-      {
-        tag: "Evening & Dining",
-        text: "Had a wonderful evening at Croft House. The ambiance is classy yet comfortable, and every dish we tried was fresh and tasty. Definitely a 5-star experience."
-      },
-      {
-        tag: "Calm & Aesthetic",
-        text: "Calm, aesthetic, and welcoming—Croft House has the ideal cafe atmosphere. Paired with great coffee and polite staff, it’s a gem of a place."
-      },
-      {
-        tag: "Desi / Hinglish",
-        text: "Bahut hi pyaara ambiance aur superb coffee! Staff ka behavior bhi kaafi polite aur helpful hai. Jaipur mein best cafe experience."
-      }
+    const reviewPool = [
+      // Overall Experience
+      { tag: "Overall Experience", text: "Amazing coffee, warm ambiance, and super friendly staff. Croft House is easily one of my favorite spots in Jaipur to relax and unwind. Highly recommended!" },
+      { tag: "Overall Experience", text: "Had a fantastic time at Croft House! From the welcoming vibe to the delicious menu, everything felt thoughtfully curated. Definitely coming back soon." },
+      { tag: "Overall Experience", text: "A true hidden gem in Jaipur! Great energy, mouthwatering food, and top-class service. Croft House ticks all the right boxes." },
+      { tag: "Overall Experience", text: "Five stars without a doubt! Loved the hospitality, the music, and the quality of every item we ordered at Croft House." },
+      { tag: "Overall Experience", text: "One of the best cafe experiences I’ve had recently. Cozy corners, great coffee, and genuinely warm people running the place." },
+
+      // Coffee & Drinks
+      { tag: "Coffee & Drinks", text: "Hands down some of the best coffee I’ve had in town. Rich flavor, great presentation, and the vibe of Croft House makes it even better." },
+      { tag: "Coffee & Drinks", text: "If you’re a coffee lover in Jaipur, Croft House is a must-visit. Smooth, aromatic brews and super consistent quality." },
+      { tag: "Coffee & Drinks", text: "Loved their iced coffee and refreshing beverages! Perfectly balanced flavors and served with great care." },
+      { tag: "Coffee & Drinks", text: "Great brews and even better vibes. Every sip felt freshly crafted—Croft House knows how to do coffee right." },
+      { tag: "Coffee & Drinks", text: "Stopped by for a quick coffee and ended up staying for hours because the drinks and atmosphere were just that good!" },
+
+      // Ambiance & Vibe
+      { tag: "Ambiance & Vibe", text: "Loved the aesthetic and cozy vibe of Croft House! It’s the perfect place to catch up with friends or spend some peaceful time." },
+      { tag: "Ambiance & Vibe", text: "Such a tasteful and classy interior! The lighting, seating, and overall atmosphere at Croft House make you feel instantly relaxed." },
+      { tag: "Ambiance & Vibe", text: "Beautifully designed cafe with a very soothing ambiance. Whether you want to unwind or have a great conversation, this place is ideal." },
+      { tag: "Ambiance & Vibe", text: "The vibe at Croft House is unmatched—warm, welcoming, and super photogenic without feeling overdone." },
+      { tag: "Ambiance & Vibe", text: "Calm, aesthetic, and welcoming—Croft House has the ideal cafe atmosphere. Paired with great coffee, it’s a gem of a place." },
+
+      // Food & Bakes
+      { tag: "Food & Bakes", text: "Delicious food, fresh bakes, and top-notch coffee! Everything we ordered was full of flavor. Croft House never disappoints." },
+      { tag: "Food & Bakes", text: "Every dish we tried was fresh, flavorful, and beautifully plated. Their baked items are an absolute treat!" },
+      { tag: "Food & Bakes", text: "Amazing food quality and generous portions! Everything tasted super fresh and paired wonderfully with their beverages." },
+      { tag: "Food & Bakes", text: "From savory bites to sweet treats, the kitchen at Croft House really delivers. Loved every single bite!" },
+      { tag: "Food & Bakes", text: "Freshly prepared food with great attention to taste and presentation. Easily one of my go-to places in Jaipur for good food and coffee." },
+
+      // Staff & Hospitality
+      { tag: "Staff & Hospitality", text: "Exceptional hospitality and super attentive staff! They made us feel right at home from the moment we walked in." },
+      { tag: "Staff & Hospitality", text: "The team at Croft House is so polite, prompt, and welcoming. Great service truly elevates the whole dining experience." },
+      { tag: "Staff & Hospitality", text: "Shoutout to the wonderful staff for their warm hospitality and quick service! Everything was served with a genuine smile." },
+      { tag: "Staff & Hospitality", text: "Rarely do you find a place where both the food and the service are equally impressive. Kudos to the Croft House team!" },
+      { tag: "Staff & Hospitality", text: "Super courteous staff and very clean, well-maintained space. You can tell they really care about their guests." },
+
+      // Hangout & Outing
+      { tag: "Hangout Spot", text: "Such a refreshing hangout spot in Jaipur! Great music, comfortable seating, and amazing snacks to go with your coffee." },
+      { tag: "Hangout Spot", text: "Visited Croft House with friends and we all loved it! Great playlist, chill crowd, and awesome food." },
+      { tag: "Hangout Spot", text: "Had a wonderful evening at Croft House. The ambiance is classy yet comfortable, and every dish we tried was fresh and tasty." },
+      { tag: "Hangout Spot", text: "Perfect spot for a weekend catch-up or an evening coffee run. Croft House has become our group's new favorite place." },
+      { tag: "Hangout Spot", text: "Lovely place to spend quality time with family or friends. Peaceful environment, great menu, and smooth service." },
+
+      // Quick & Short
+      { tag: "Quick & Short", text: "Great coffee, lovely atmosphere, and quick service. Loved everything about Croft House!" },
+      { tag: "Quick & Short", text: "Superb food, warm vibes, and very polite staff. Highly recommend Croft House!" },
+      { tag: "Quick & Short", text: "One of the finest cafes in Jaipur. Great taste, great ambiance, 5/5 experience!" },
+      { tag: "Quick & Short", text: "Loved the coffee and cozy vibe! Will definitely visit Croft House again." },
+      { tag: "Quick & Short", text: "Fresh food, amazing brews, and top-notch hospitality. Must visit!" },
+
+      // Hinglish / Local Touch
+      { tag: "Desi / Hinglish", text: "Bahut hi pyaara ambiance aur superb coffee! Staff ka behavior bhi kaafi polite aur helpful hai. Jaipur mein best cafe experience." },
+      { tag: "Desi / Hinglish", text: "Croft House ka vibe aur food dono hi लाजवाब hain! Coffee aur snacks try kiye, sab kuch ekdum fresh aur tasty tha." },
+      { tag: "Desi / Hinglish", text: "Friends ke saath chill karne ke liye best jagah hai Jaipur mein. Service fast hai aur staff bahut welcoming hai." },
+      { tag: "Desi / Hinglish", text: "Aesthetic interior, soothing music aur bahut hi बढ़िया coffee. Ek baar zaroor visit karna chahiye!" },
+      { tag: "Desi / Hinglish", text: "Overall 5-star experience! Khana, coffee aur hospitality sab kuch top class hai Croft House mein." }
     ];
 
     const reviewListEl = document.getElementById("reviewList");
-    const toastEl = document.getElementById("toast");
+    const overlayEl = document.getElementById("guideOverlay");
     const directLinkEl = document.getElementById("directLink");
+    const shuffleBtn = document.getElementById("shuffleBtn");
 
     directLinkEl.href = GOOGLE_REVIEW_URL;
+
+    function getRandomReviews(pool, count) {
+      const shuffled = [...pool];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled.slice(0, count);
+    }
 
     function copyAndRedirect(text) {
       if (navigator.clipboard && window.isSecureContext) {
@@ -252,10 +363,10 @@
         fallbackCopy(text);
       }
 
-      toastEl.classList.add("show");
+      overlayEl.classList.add("show");
       setTimeout(() => {
         window.location.href = GOOGLE_REVIEW_URL;
-      }, 950);
+      }, 1600);
     }
 
     function fallbackCopy(text) {
@@ -272,19 +383,27 @@
       document.body.removeChild(textArea);
     }
 
-    reviews.forEach((item) => {
-      const card = document.createElement("div");
-      card.className = "review-card";
-      card.innerHTML = `
-        <div class="card-top">
-          <span class="tag">${item.tag}</span>
-          <span class="copy-pill">Tap to Copy & Review</span>
-        </div>
-        <p class="review-text">"${item.text}"</p>
-      `;
-      card.addEventListener("click", () => copyAndRedirect(item.text));
-      reviewListEl.appendChild(card);
-    });
+    function renderReviews() {
+      reviewListEl.innerHTML = "";
+      const selected = getRandomReviews(reviewPool, 8);
+
+      selected.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "review-card";
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="tag">${item.tag}</span>
+            <span class="copy-pill">Tap to Copy & Review</span>
+          </div>
+          <p class="review-text">"${item.text}"</p>
+        `;
+        card.addEventListener("click", () => copyAndRedirect(item.text));
+        reviewListEl.appendChild(card);
+      });
+    }
+
+    shuffleBtn.addEventListener("click", renderReviews);
+    renderReviews();
   </script>
 </body>
 </html>
