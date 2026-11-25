@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Review Croft House on Google</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0e241b;
+      --bg-card: #153327;
+      --bg-card-hover: #1b4031;
+      --gold: #d4af37;
+      --gold-light: #f3e5ab;
+      --text-main: #f8faf9;
+      --text-muted: #b7c9c1;
+      --border-gold: rgba(212, 175, 55, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top, #16382a 0%, var(--bg-dark) 65%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    .brand-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.75rem;
+      letter-spacing: 3px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .stars {
+      color: #fbbc04;
+      font-size: 1.25rem;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .subtitle strong {
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
+    .review-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .review-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 14px;
+      padding: 15px 16px;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+      position: relative;
+    }
+
+    .review-card:hover,
+    .review-card:active {
+      background: var(--bg-card-hover);
+      border-color: var(--gold);
+      transform: translateY(-1px);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .copy-pill {
+      font-size: 0.75rem;
+      color: var(--bg-dark);
+      background: var(--gold);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .review-text {
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: var(--text-main);
+    }
+
+    .direct-link-wrap {
+      margin-top: 26px;
+      text-align: center;
+    }
+
+    .direct-btn {
+      display: inline-block;
+      width: 100%;
+      padding: 13px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: rgba(212, 175, 55, 0.08);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--gold);
+      color: #0b1c15;
+      padding: 13px 22px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="brand-name">CROFT HOUSE</h1>
+      <div class="stars">★★★★★</div>
+      <p class="subtitle">
+        Tap any review below to <strong>copy &amp; open Google</strong>.<br>
+        Just paste it and submit your 5-star rating!
+      </p>
+    </header>
+
+    <main class="review-list" id="reviewList"></main>
+
+    <div class="direct-link-wrap">
+      <a href="#" id="directLink" class="direct-btn">Write my own review directly on Google →</a>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">✓ Review Copied! Opening Google...</div>
+
+  <script>
+    const GOOGLE_REVIEW_URL = "https://search.google.com/local/writereview?placeid=ChIJo41cbAC1bTkRnEwq2tPhq14&source=g.page.m._&laa=merchant-review-solicitation";
+
+    const reviews = [
+      {
+        tag: "Overall Experience",
+        text: "Amazing coffee, warm ambiance, and super friendly staff. Croft House is easily one of my favorite spots in Jaipur to relax and unwind. Highly recommended!"
+      },
+      {
+        tag: "Coffee & Drinks",
+        text: "Hands down some of the best coffee I’ve had in town. Rich flavor, great presentation, and the vibe of Croft House makes it even better. Will definitely be coming back soon."
+      },
+      {
+        tag: "Ambiance & Vibe",
+        text: "Loved the aesthetic and cozy vibe of Croft House! It’s the perfect place to catch up with friends or spend some peaceful time over a great cup of coffee."
+      },
+      {
+        tag: "Food & Bakes",
+        text: "Delicious food, fresh bakes, and top-notch coffee! Everything we ordered was full of flavor. Croft House never disappoints with its quality and hospitality."
+      },
+      {
+        tag: "Staff & Hospitality",
+        text: "Exceptional hospitality and super attentive staff! They made us feel right at home from the moment we walked in. Great food, great coffee, and a wonderful experience overall."
+      },
+      {
+        tag: "Hangout Spot",
+        text: "Such a refreshing hangout spot in Jaipur! Great music, comfortable seating, and amazing snacks to go with your coffee. Croft House is a must-visit."
+      },
+      {
+        tag: "Quick & Short",
+        text: "Great coffee, lovely atmosphere, and quick service. Loved everything about Croft House!"
+      },
+      {
+        tag: "Evening & Dining",
+        text: "Had a wonderful evening at Croft House. The ambiance is classy yet comfortable, and every dish we tried was fresh and tasty. Definitely a 5-star experience."
+      },
+      {
+        tag: "Calm & Aesthetic",
+        text: "Calm, aesthetic, and welcoming—Croft House has the ideal cafe atmosphere. Paired with great coffee and polite staff, it’s a gem of a place."
+      },
+      {
+        tag: "Desi / Hinglish",
+        text: "Bahut hi pyaara ambiance aur superb coffee! Staff ka behavior bhi kaafi polite aur helpful hai. Jaipur mein best cafe experience."
+      }
+    ];
+
+    const reviewListEl = document.getElementById("reviewList");
+    const toastEl = document.getElementById("toast");
+    const directLinkEl = document.getElementById("directLink");
+
+    directLinkEl.href = GOOGLE_REVIEW_URL;
+
+    function copyAndRedirect(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+
+      toastEl.classList.add("show");
+      setTimeout(() => {
+        window.location.href = GOOGLE_REVIEW_URL;
+      }, 950);
+    }
+
+    function fallbackCopy(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand("copy");
+      } catch (err) {}
+      document.body.removeChild(textArea);
+    }
+
+    reviews.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "review-card";
+      card.innerHTML = `
+        <div class="card-top">
+          <span class="tag">${item.tag}</span>
+          <span class="copy-pill">Tap to Copy & Review</span>
+        </div>
+        <p class="review-text">"${item.text}"</p>
+      `;
+      card.addEventListener("click", () => copyAndRedirect(item.text));
+      reviewListEl.appendChild(card);
+    });
+  </script>
+</body>
+</html>
